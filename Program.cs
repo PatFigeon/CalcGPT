@@ -1,17 +1,13 @@
 ﻿//TODO
 //Make codebase worse so that AI can't steal it
-//Make it so the outputted guess cannot exceed a certain value
-//Random colour changes
-//GUI?
-//You can type the operations as "plus" etc
-
 
 namespace CalcGPT
 {
     class Program
     {
-        public static int ChooseOperator(string userInput_param) //I love param
-        {            
+        public static int ChooseOperator(string userInput_param)
+        {
+            
             string operation = userInput_param;
             int operationSelect;
             switch (operation)
@@ -36,7 +32,7 @@ namespace CalcGPT
             }
             return operationSelect;
         }
-        public static int Guess(float numIn) //Lets freaking go! We got a param in the big '26!
+        public static int Guess(float numIn)
         {
             int guess;
             int limit = Convert.ToInt32(Math.Floor(numIn));
@@ -45,39 +41,26 @@ namespace CalcGPT
             guess = rand.Next(limit-20, limit+21);
             return guess;
         }
-        public static float Num1()
+        public static float NumSelect()
         {
-            float number1;
+            float inputNumber;
             try
             {
-                number1 = Convert.ToSingle(Console.ReadLine());
+                inputNumber = Convert.ToSingle(Console.ReadLine());
             }
             catch (System.FormatException)
             {
                 Console.WriteLine("That's prolly not a number vro, try again.");
-                number1 = Num1();
+                inputNumber = NumSelect();
             }
-            return number1;
-        }
-        public static float Num2() //Hehe funny repeated function go brrrrrr
-        {
-            float number2;
-            try
-            {
-                number2 = Convert.ToSingle(Console.ReadLine());
-            }
-            catch (System.FormatException)
-            {
-                Console.WriteLine("That's prolly not a number vro, try again.");
-                number2 = Num2();
-            }
-            return number2;
+            return inputNumber;
         }
         static int GetUniqueGuess(float numIn, HashSet<int> history)
         {
             int guess;
             var rand = new Random();
             int limit = Convert.ToInt32(Math.Floor(numIn));
+
             while (true)
             {
                 guess = rand.Next(limit - 20, limit + 21);
@@ -89,8 +72,7 @@ namespace CalcGPT
                 /* else
                 {
                     Console.WriteLine("Test message: duplicate");
-                }
-                */
+                } */
             }
         }
         public static void Main()
@@ -104,12 +86,17 @@ namespace CalcGPT
             string restart;
             
             Console.WriteLine("Yooooooo welcome to the calc (short for calculator). The answer should be close enough. Enter the first number:");
-            number1 = Num1();
+            number1 = NumSelect();
             Console.WriteLine("Which operation we doing? Let's have it");
             operation = Console.ReadLine();
             operationSelect = ChooseOperator(operation);
             Console.WriteLine("Chuck in that second number then broseph:");
-            number2 = Num2();
+            number2 = NumSelect();
+            while (operationSelect == 3 && number2 == 0)
+            {
+                Console.WriteLine("I see what you're doing there you rascal. Let's not divide by zero please. Put in a different divisor");
+                number2 = NumSelect();
+            }
            
             if (number1 > 100 || number2 > 100 || number1 < -100 || number2 < -100)
             {
@@ -144,34 +131,32 @@ namespace CalcGPT
             HashSet<int> previousGuesses = new HashSet<int>();
 
             guess = Guess(trueAnswer);      
-            while (guess != trueAnswer)
+            for (int i = 0; i < 25; i++)
             {
-                for (int i = 0; i < 25; i++)
+                guess = GetUniqueGuess(answer, previousGuesses);
+                Console.WriteLine("Generating guess...");         
+                    
+                Console.WriteLine(guess);
+                Thread.Sleep(500);
+                if (guess == trueAnswer)
                 {
-                    guess = GetUniqueGuess(answer, previousGuesses);
-                    Console.WriteLine("Generating guess...");
-                    Console.WriteLine(guess);
-                    Thread.Sleep(500);
-                    if (guess == trueAnswer)
-                    {
-                        Console.WriteLine($"Finally, took a little bit but here's your answer :P\nYour answer is prolly around the neighbourhood of {guess}.");
-                        break;
-                    }
+                    Console.WriteLine($"Finally, took a little bit but here's your answer :P\nYour answer is prolly around the neighbourhood of {guess}.");
+                    break;
                 }
-                if (guess != trueAnswer)
-                {
-                    Console.WriteLine("Welp, I tried but it's too hard. Time to give up.");
-                }
-                Console.WriteLine("Do you want to run the calc again? y/n");
-                restart = Console.ReadLine();
-                if (restart == "y")
-                {
-                    Main();
-                }
-                else
-                {
-                    Environment.Exit(0);
-                }
+            }
+            if (guess != trueAnswer)
+            {
+                Console.WriteLine("Welp, I tried but it's too hard. Time to give up.");
+            }
+            Console.WriteLine("Do you want to run the calc again? y/n");
+            restart = Console.ReadLine();
+            if (restart == "y")
+            {
+                Main();
+            }
+            else
+            {
+                Environment.Exit(0);
             }
         }
     }
